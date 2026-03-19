@@ -13,9 +13,14 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddHangfire(config =>
-    config.UsePostgreSqlStorage(builder.Configuration.GetConnectionString("DefaultConnection"))
+    config.UsePostgreSqlStorage(options =>
+        options.UseNpgsqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")))
 );
+builder.Services.AddHangfireServer();
 
+// Job dependencies
+builder.Services.AddScoped<PriceUpdatedService>();
+builder.Services.AddHttpClient<ScraperService>();
 
 var app = builder.Build();
 
@@ -43,6 +48,8 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+app.RegisterHangfireJobs();
+
 app.UseHangfireDashboard("/hangfire");
 
 
@@ -52,4 +59,3 @@ app.MapControllers();
 
 
 app.Run();
-

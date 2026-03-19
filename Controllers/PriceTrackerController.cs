@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Hangfire;
 
 namespace PriceTracker.Api.Controllers
 {
@@ -8,10 +9,12 @@ namespace PriceTracker.Api.Controllers
     public class PriceTrackerController : ControllerBase
     {
         private readonly AppDbContext _db;
+        private readonly IBackgroundJobClient _jobs;
 
-        public PriceTrackerController(AppDbContext db)
+        public PriceTrackerController(AppDbContext db, IBackgroundJobClient jobs)
         {
             _db = db;
+            _jobs = jobs;
         }
 
         [HttpPost]
@@ -25,6 +28,8 @@ namespace PriceTracker.Api.Controllers
             };
             await _db.Products.AddAsync(record);
             await _db.SaveChangesAsync();
+
+            _jobs.Enqueue<PriceUpdatedService>(x => x.UpdateSingleProduct(record.Id));
             return Ok(new { message = "Url added", record });
         }
         [HttpGet]
@@ -39,6 +44,15 @@ namespace PriceTracker.Api.Controllers
             var product = await _db.Products.FindAsync(id);
             if (product == null) return NotFound();
             return Ok(product);
+        }
+        [HttpDelete("product/{id:int}")]
+        public async Task<IActionResult> DeleteProduct(int id)
+        {
+            var product = await _db.Products.FindAsync(id);
+            if (product == null) return NotFound();
+            _db.Remove(product);
+            await _db.SaveChangesAsync();
+            return NoContent();
         }
 
         public string GenerateStore(string url)
