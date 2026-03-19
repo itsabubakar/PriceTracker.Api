@@ -1,0 +1,8 @@
+- [] Add edit products api
+- [] Build react pwa frontend and start api integration
+- [] Add way to save user data using http only cookie,
+- [] Add auth
+- [] Add way to save product by either url or unique id, return historic data for products already saved in db
+- []
+- []
+- []
