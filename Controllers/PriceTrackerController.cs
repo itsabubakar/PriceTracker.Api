@@ -45,6 +45,21 @@ namespace PriceTracker.Api.Controllers
             if (product == null) return NotFound();
             return Ok(product);
         }
+        [HttpPatch("product/{id:int}")]
+        public async Task<IActionResult> EditProduct(int id, [FromBody] UpdateProductNameDto dto)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var existingProduct = await _db.Products.FindAsync(id);
+            if (existingProduct == null) return NotFound();
+
+            if (string.IsNullOrWhiteSpace(dto.Name))
+                return BadRequest(new { message = "Name cannot be empty" });
+
+            existingProduct.Name = dto.Name;
+            await _db.SaveChangesAsync();
+            return NoContent();
+        }
         [HttpDelete("product/{id:int}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {

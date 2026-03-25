@@ -1,4 +1,4 @@
-- [] Add edit products api
+- [x] Add edit products name api
 - [] Build react pwa frontend and start api integration
 - [] Add way to save user data using http only cookie,
 - [] Add auth

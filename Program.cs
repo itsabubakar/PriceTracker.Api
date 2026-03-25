@@ -15,6 +15,20 @@ builder.Services.AddHangfire(config =>
 );
 builder.Services.AddHangfireServer();
 
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? ["http://localhost:5173"];
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ClientApp", policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
 // Job dependencies
 builder.Services.AddScoped<PriceUpdatedService>();
 builder.Services.AddHttpClient<ScraperService>();
@@ -49,10 +63,9 @@ app.RegisterHangfireJobs();
 
 app.UseHangfireDashboard("/hangfire");
 
-
 app.UseHttpsRedirection();
+app.UseCors("ClientApp");
 
 app.MapControllers();
-
 
 app.Run();
