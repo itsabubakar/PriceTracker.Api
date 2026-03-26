@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Hangfire.PostgreSql;
+using PriceTracker.Api.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,6 +66,26 @@ app.UseHangfireDashboard("/hangfire");
 
 app.UseHttpsRedirection();
 app.UseCors("ClientApp");
+app.Use(async (context, next) =>
+{
+    if (!context.Request.Cookies.TryGetValue(VisitorIdentity.AnonymousCookieName, out var anonId) ||
+        !Guid.TryParse(anonId, out _))
+    {
+        context.Response.Cookies.Append(
+            VisitorIdentity.AnonymousCookieName,
+            Guid.NewGuid().ToString(),
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Lax,
+                IsEssential = true,
+                Expires = DateTimeOffset.UtcNow.AddYears(1)
+            });
+    }
+
+    await next();
+});
 
 app.MapControllers();
 

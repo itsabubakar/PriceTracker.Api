@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Hangfire;
+using PriceTracker.Api.Infrastructure;
 
 namespace PriceTracker.Api.Controllers
 {
@@ -21,10 +22,12 @@ namespace PriceTracker.Api.Controllers
         public async Task<IActionResult> AddUrl([FromBody] AddUrlRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Url)) return BadRequest("Url can't be empty");
+            var ownerKey = VisitorIdentity.BuildOwnerKey(HttpContext);
             var record = new Product
             {
                 Url = request.Url,
-                Store = GenerateStore(request.Url)
+                Store = GenerateStore(request.Url),
+                OwnerKey = ownerKey
             };
             await _db.Products.AddAsync(record);
             await _db.SaveChangesAsync();
@@ -35,13 +38,31 @@ namespace PriceTracker.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetProducts()
         {
-            var products = await _db.Products.OrderByDescending(x => x.CreatedAt).ToListAsync();
+            var ownerKey = VisitorIdentity.BuildOwnerKey(HttpContext);
+            var products = await _db.Products
+                                .Where(x => x.OwnerKey == ownerKey).OrderByDescending(x => x.CreatedAt).Select(x => new ProductDto
+                                {
+                                    Name = x.Name,
+                                    Price = x.Price ?? 0,
+                                    PriceFormatted = x.PriceFormatted ?? "",
+                                    Url = x.Url,
+                                    OwnerKey = x.OwnerKey
+                                })
+                                .ToListAsync();
             return Ok(products);
         }
         [HttpGet("product/{id:int}")]
         public async Task<IActionResult> GetProduct(int id)
         {
-            var product = await _db.Products.FindAsync(id);
+            var ownerKey = VisitorIdentity.BuildOwnerKey(HttpContext);
+            var product = await _db.Products.Where(x => x.Id == id && x.OwnerKey == ownerKey).Select(x => new ProductDto
+            {
+                Name = x.Name,
+                Price = x.Price ?? 0,
+                PriceFormatted = x.PriceFormatted ?? "",
+                Url = x.Url,
+                OwnerKey = x.OwnerKey
+            }).FirstOrDefaultAsync();
             if (product == null) return NotFound();
             return Ok(product);
         }
@@ -49,8 +70,8 @@ namespace PriceTracker.Api.Controllers
         public async Task<IActionResult> EditProduct(int id, [FromBody] UpdateProductNameDto dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            var existingProduct = await _db.Products.FindAsync(id);
+            var ownerKey = VisitorIdentity.BuildOwnerKey(HttpContext);
+            var existingProduct = await _db.Products.FirstOrDefaultAsync(x => x.Id == id && x.OwnerKey == ownerKey);
             if (existingProduct == null) return NotFound();
 
             if (string.IsNullOrWhiteSpace(dto.Name))
@@ -63,7 +84,8 @@ namespace PriceTracker.Api.Controllers
         [HttpDelete("product/{id:int}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var product = await _db.Products.FindAsync(id);
+            var ownerKey = VisitorIdentity.BuildOwnerKey(HttpContext);
+            var product = await _db.Products.FirstOrDefaultAsync(x => x.Id == id && x.OwnerKey == ownerKey);
             if (product == null) return NotFound();
             _db.Remove(product);
             await _db.SaveChangesAsync();

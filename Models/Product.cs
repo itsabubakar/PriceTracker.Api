@@ -12,6 +12,9 @@ public class Product
 
     public string Store { get; set; } = "";
 
+    // "anon:{guid}" now, "user:{sub}" after login
+    public string OwnerKey { get; set; } = "";
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime? LastChecked { get; set; }
