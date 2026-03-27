@@ -1,7 +1,7 @@
 - [x] Add edit products name api
 - [x] Build react pwa frontend and start api integration
 - [x] Add way to save user data using http only cookie,
-- [] Add auth
+- [x] Add auth
 - [] Add email alerts
 - [] Add charts showing historic line
 - [] Add way to save product by either url or unique id, return historic data for products already saved in db

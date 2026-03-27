@@ -10,13 +10,11 @@ public static class VisitorIdentity
     {
         if (httpContext.User?.Identity?.IsAuthenticated == true)
         {
-            var subject = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)
+            var sub = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)
                 ?? httpContext.User.FindFirstValue("sub");
 
-            if (!string.IsNullOrWhiteSpace(subject))
-            {
-                return $"user:{subject}";
-            }
+            if (!string.IsNullOrWhiteSpace(sub))
+                return $"user:{sub}";
         }
 
         if (httpContext.Request.Cookies.TryGetValue(AnonymousCookieName, out var anonId) &&
@@ -25,6 +23,6 @@ public static class VisitorIdentity
             return $"anon:{anonId}";
         }
 
-        throw new InvalidOperationException("Anonymous visitor cookie is missing or invalid.");
+        throw new InvalidOperationException("Visitor key is missing.");
     }
 }
