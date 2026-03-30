@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 
 public class ProductDto
 {
+    public required int Id { get; set; }
     public required string Name { get; set; }
     public required decimal Price { get; set; }
     [JsonPropertyName("price_formatted")]

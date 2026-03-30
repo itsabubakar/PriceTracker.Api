@@ -42,6 +42,7 @@ namespace PriceTracker.Api.Controllers
             var products = await _db.Products
                                 .Where(x => x.OwnerKey == ownerKey).OrderByDescending(x => x.CreatedAt).Select(x => new ProductDto
                                 {
+                                    Id = x.Id,
                                     Name = x.Name,
                                     Price = x.Price ?? 0,
                                     PriceFormatted = x.PriceFormatted ?? "",
@@ -57,6 +58,7 @@ namespace PriceTracker.Api.Controllers
             var ownerKey = VisitorIdentity.BuildOwnerKey(HttpContext);
             var product = await _db.Products.Where(x => x.Id == id && x.OwnerKey == ownerKey).Select(x => new ProductDto
             {
+                Id = x.Id,
                 Name = x.Name,
                 Price = x.Price ?? 0,
                 PriceFormatted = x.PriceFormatted ?? "",

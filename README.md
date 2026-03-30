@@ -3,6 +3,15 @@
 - [x] Add way to save user data using http only cookie,
 - [x] Add auth
 - [] Add email alerts
+  - [x] Create email alerts
+  - [x] Edit email alerts
+  - [] Delete email alerts
+  - [] Disable email alerts
+  - [] Create job that picks alerts up
+  - [] Create account on resend
+  - [] Add details to appSettings.json
+  - [] Test email sending
+  - [] Update frontend to consume alert apis
 - [] Add charts showing historic line
 - [] Add way to save product by either url or unique id, return historic data for products already saved in db
 - []
