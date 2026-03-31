@@ -75,12 +75,27 @@ public class AlertsController : Controller
 
         }
         alert.FrequencyDays = request.FrequencyDays;
-        alert.IsEnabled = true;
+        alert.IsEnabled = request.IsEnabled;
         alert.NextSendAt = CalculateNextSendAt(request.FrequencyDays);
 
         await _db.SaveChangesAsync();
         return Ok(new { message = "Alert updated", alertId = alert.Id });
 
+    }
+
+
+
+    [HttpDelete("alert/{alertId:int}")]
+    public async Task<IActionResult> DeleteAlert(int alertId)
+    {
+        if (!GetUserId(out var userId))
+            return Unauthorized(new { message = "Invalid user identity" });
+        var alert = await _db.ProductAlerts.FirstOrDefaultAsync(x => x.UserId == userId && x.Id == alertId);
+        if (alert is null) return NotFound(new { message = "No alert found" });
+        _logger.LogInformation("Alert={alert}", alert);
+        _db.ProductAlerts.Remove(alert);
+        await _db.SaveChangesAsync();
+        return NoContent();
     }
 
     private bool GetUserId(out int userId)
@@ -95,6 +110,7 @@ public class AlertsController : Controller
     public sealed class CreateAlertRequest
     {
         public int FrequencyDays { get; set; }
+        public bool IsEnabled { get; set; }
     }
 
     public sealed class ToggleAlertRequest

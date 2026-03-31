@@ -5,9 +5,11 @@
 - [] Add email alerts
   - [x] Create email alerts
   - [x] Edit email alerts
-  - [] Delete email alerts
-  - [] Disable email alerts
+  - [x] Delete email alerts
+  - [x] Disable email alerts
+  - [] Create alert service
   - [] Create job that picks alerts up
+  - [] Create email sending service
   - [] Create account on resend
   - [] Add details to appSettings.json
   - [] Test email sending
