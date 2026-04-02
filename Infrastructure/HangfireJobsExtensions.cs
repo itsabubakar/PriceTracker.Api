@@ -12,5 +12,7 @@ public static class HangfireJobsExtensions
             x => x.UpdateAllPrices(),
             "*/30 * * * *"
         );
+
+        recurringJobs.AddOrUpdate<AlertJobService>("process-product-alerts", x => x.Run(), "*/30 * * * *");
     }
 }

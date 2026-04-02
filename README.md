@@ -7,11 +7,13 @@
   - [x] Edit email alerts
   - [x] Delete email alerts
   - [x] Disable email alerts
-  - [] Create alert service
-  - [] Create job that picks alerts up
-  - [] Create email sending service
+  - [x] Create alert service
+  - [x] Create job that picks alerts up
   - [] Create account on resend
-  - [] Add details to appSettings.json
+  - [] Create account on resend
+  - [] Add secrets to dotnet secrets
+  - [] Add resend package
+  - [] Create email sending service
   - [] Test email sending
   - [] Update frontend to consume alert apis
 - [] Add charts showing historic line
