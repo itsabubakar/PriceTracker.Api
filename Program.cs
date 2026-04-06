@@ -8,6 +8,8 @@ using Scalar.AspNetCore;
 using Hangfire.PostgreSql;
 using PriceTracker.Api.Infrastructure;
 using System.Text;
+using PriceTracker.Api.Configuration;
+using Resend;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +32,20 @@ builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<AlertService>();
 builder.Services.AddScoped<AlertJobService>();
+
+// Register Resend
+builder.Services.AddHttpClient<ResendClient>();
+builder.Services.Configure<ResendClientOptions>(o =>
+{
+    o.ApiToken = builder.Configuration["Email:ApiKey"]!;
+});
+builder.Services.AddTransient<IResend, ResendClient>();
+
+builder.Services
+    .AddOptions<EmailOptions>()
+    .Bind(builder.Configuration.GetSection(EmailOptions.SectionName))
+    .Validate(o => !string.IsNullOrWhiteSpace(o.ApiKey), "Email:ApiKey is required")
+    .ValidateOnStart();
 
 var jwt = builder.Configuration.GetSection("JwtOptions").Get<JwtOptions>()
     ?? throw new InvalidOperationException("JwtOptions missing");

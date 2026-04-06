@@ -9,9 +9,8 @@
   - [x] Disable email alerts
   - [x] Create alert service
   - [x] Create job that picks alerts up
-  - [] Create account on resend
-  - [] Create account on resend
-  - [] Add secrets to dotnet secrets
+  - [x] Create account on resend
+  - [x] Add secrets to dotnet secrets
   - [] Add resend package
   - [] Create email sending service
   - [] Test email sending
